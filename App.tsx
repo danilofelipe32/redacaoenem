@@ -27,7 +27,7 @@ const App: React.FC = () => {
 
     const ai = useMemo(() => {
         try {
-            const apiKey = process.env.API_KEY;
+            const apiKey = "AIzaSyCc7kciwppjxdeyCKVZmp8QWow_sqCOSXA";
             if (!apiKey) {
                 // Este erro será capturado e 'ai' será nulo.
                 // O usuário verá uma notificação de erro ao tentar uma ação.
