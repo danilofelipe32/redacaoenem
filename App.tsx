@@ -9,7 +9,7 @@ import { GeminiModal } from './components/GeminiModal';
 import { ErrorToast } from './components/ErrorToast';
 import { StudyPlanPdfContent } from './components/StudyPlanPdfContent';
 import type { Evaluation, Corrector } from './types';
-import { fileToBase64 } from './utils/file';
+import { fileToBase64, fileToText } from './utils/file';
 
 const App: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -45,13 +45,25 @@ const App: React.FC = () => {
     }, [location.pathname, evaluations, navigate]);
 
     const callGeminiAPI = useCallback(async <T,>(systemPrompt: string, userPrompt: string, file: File | null = null, responseIsJson: boolean): Promise<T> => {
-        let parts: any[] = [{ text: userPrompt }];
+        const textPart = { text: userPrompt };
+        let parts: any[] = [textPart];
 
-        if (file && file.type.startsWith("image/")) {
-            const base64Data = await fileToBase64(file);
-            parts = [ {text: userPrompt}, { inlineData: { mimeType: file.type, data: base64Data } }];
-        } else if (file) {
-             parts[0].text += `\n\n(Anexo: ${file.name}, tipo: ${file.type})`;
+        if (file) {
+            if (file.type.startsWith("image/")) {
+                const base64Data = await fileToBase64(file);
+                const imagePart = { inlineData: { mimeType: file.type, data: base64Data } };
+                parts.push(imagePart);
+            } else if (file.type === 'text/plain') {
+                const fileText = await fileToText(file);
+                parts[0].text += `\n\n--- INÍCIO DA REDAÇÃO DO ARQUIVO ---\n${fileText}\n--- FIM DA REDAÇÃO DO ARQUIVO ---`;
+            } else if (file.type === 'application/pdf') {
+                const base64Data = await fileToBase64(file);
+                const pdfPart = { inlineData: { mimeType: file.type, data: base64Data } };
+                parts.push(pdfPart);
+            } else {
+                // Fallback for unsupported file types
+                parts[0].text += `\n\n(Anexo: ${file.name}, tipo: ${file.type}. Não foi possível processar o conteúdo.)`;
+            }
         }
         
         const response = await ai.models.generateContent({
