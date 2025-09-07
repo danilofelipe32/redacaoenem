@@ -20,7 +20,6 @@ const App: React.FC = () => {
     const [modalState, setModalState] = useState<{ isOpen: boolean; title: string; content: string }>({ isOpen: false, title: '', content: '' });
     const [error, setError] = useState<string | null>(null);
     const [isExportingPlan, setIsExportingPlan] = useState<boolean>(false);
-    const [isApiConfigured, setIsApiConfigured] = useState(true);
 
 
     const navigate = useNavigate();
@@ -28,19 +27,15 @@ const App: React.FC = () => {
 
     const ai = useMemo(() => {
         try {
-            // The process object is not available in browser environments without a build-time replacement.
-            // This check prevents a runtime crash on platforms like Netlify.
-            const apiKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : undefined;
-
+            const apiKey = process.env.API_KEY;
             if (!apiKey) {
-                console.error("API_KEY environment variable not set.");
-                setIsApiConfigured(false);
-                return null;
+                // Este erro será capturado e 'ai' será nulo.
+                // O usuário verá uma notificação de erro ao tentar uma ação.
+                throw new Error("A variável de ambiente API_KEY não foi encontrada.");
             }
-            return new GoogleGenAI({ apiKey: apiKey as string });
+            return new GoogleGenAI({ apiKey });
         } catch (error) {
-            console.error("Error initializing Google GenAI:", error);
-            setIsApiConfigured(false);
+            console.error("Falha ao inicializar o GoogleGenAI. A API_KEY pode estar ausente ou ser inválida.", error);
             return null;
         }
     }, []);
@@ -278,13 +273,6 @@ const App: React.FC = () => {
         <div className="min-h-screen py-6 px-4">
             <div className="max-w-6xl mx-auto">
                 <Header />
-                {!isApiConfigured ? (
-                    <div className="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-6 rounded-lg shadow-md my-6" role="alert">
-                        <h3 className="font-bold text-lg mb-2">🚨 Erro de Configuração</h3>
-                        <p>A chave da API do Gemini não foi encontrada.</p>
-                        <p className="mt-2 text-sm">Para que a aplicação funcione, a variável de ambiente <code className="bg-red-200 dark:bg-red-800 font-mono p-1 rounded text-sm">API_KEY</code> deve ser configurada no seu serviço de hospedagem (ex: Netlify).</p>
-                    </div>
-                ) : (
                 <>
                     <UploadSection
                         onFileSelect={setSelectedFile}
@@ -306,7 +294,6 @@ const App: React.FC = () => {
                         } />
                     </Routes>
                 </>
-                )}
             </div>
             <GeminiModal
                 isOpen={modalState.isOpen}
