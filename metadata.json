@@ -1,0 +1,5 @@
+{
+  "name": "Avaliador de Redações ENEM com IA",
+  "description": "Uma plataforma que utiliza a API Gemini para gerar temas de redação, analisar textos enviados por usuários com base nas competências do ENEM usando três corretores de IA distintos e criar um plano de estudos personalizado.",
+  "requestFramePermissions": []
+}
