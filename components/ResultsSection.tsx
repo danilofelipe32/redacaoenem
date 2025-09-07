@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import type { Evaluation, Scores, Feedback, ViewType } from '../types';
 import { PdfContent } from './PdfContent';
 
@@ -78,7 +78,7 @@ export const ResultsSection: React.FC<ResultsSectionProps> = ({ evaluations, onG
             pdfContainer.style.background = '#fff';
             document.body.appendChild(pdfContainer);
     
-            const root = ReactDOM.createRoot(pdfContainer);
+            const root = createRoot(pdfContainer);
 
             // FIX: The root.render method from `react-dom/client` (used in React 18+)
             // does not accept a callback function. The render call is separated from

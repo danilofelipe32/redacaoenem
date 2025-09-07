@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Header } from './components/Header';
@@ -222,7 +222,7 @@ const App: React.FC = () => {
             pdfContainer.style.background = '#fff';
             document.body.appendChild(pdfContainer);
     
-            const root = ReactDOM.createRoot(pdfContainer);
+            const root = createRoot(pdfContainer);
             root.render(<StudyPlanPdfContent content={modalState.content} />);
             
             await new Promise<void>(resolve => setTimeout(resolve, 500));
